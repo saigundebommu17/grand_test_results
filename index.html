@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grand Test Results</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #f9f9f9);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      text-align: center;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 5px;
+      color: #0d47a1;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 5px 0 20px 0;
+      color: #1565c0;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin: 10px 0;
+      color: #333;
+    }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      border-color: #0d47a1;
+      outline: none;
+      box-shadow: 0 0 5px rgba(13,71,161,0.4);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      margin: 10px 8px 0 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #1e88e5, #1565c0);
+      transform: scale(1.05);
+    }
+
+    .error {
+      color: red;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    .result-details {
+      margin: 20px 0;
+      padding: 15px;
+      text-align: left;
+      border-left: 5px solid #4caf50;
+      background: #f1f8e9;
+      border-radius: 8px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Page -->
+<div class="container" id="loginPage">
+  <h1>Silver Jubilee Govt. College</h1>
+  <h2>Men's Senior Hostel</h2>
+  <h3>Grand Test 1 Results</h3>
+  <hr>
+  <h2>Login to View Results</h2>
+  <input type="text" id="hallTicket" placeholder="Enter Hall Ticket"><br>
+  <input type="password" id="password" placeholder="Enter Password"><br>
+  <button class="btn" onclick="checkResult()">View Result</button>
+  <p id="errorMsg" class="error"></p>
+</div>
+
+<!-- Result Page -->
+<div class="container" id="resultPage" style="display:none;">
+  <h1>Silver Jubilee Govt. College</h1>
+  <h2>Men's Senior Hostel</h2>
+  <h3>Grand Test 1 - Result Card</h3>
+  <hr>
+  <div class="result-details" id="resultDetails"></div>
+
+  <!-- Buttons -->
+  <button class="btn" onclick="downloadPDF()">📄 Download Result Card</button>
+  <button class="btn" onclick="viewResponse()">📝 View Response Sheet</button>
+  <br>
+  <button class="btn" style="background: #9e9e9e;" onclick="goBack()">⬅ Back</button>
+</div>
+
+<script>
+  const students = [
+ { hallTicket: "74", name: "E RAMANJANEYULU GOUD ", marks: 37, password: "24MAT6302003", sheet: "https://drive.google.com/file/d/1iP75A96iPOhyeEdZPoM5ptqcxvWfNSWJ/view?usp=drive_link" },
+
+{ hallTicket: "55", name: "Potnuru Sai prakash", marks: 50, password: "24CAP2302015", sheet: "https://drive.google.com/file/d/1dDhueTHQ868qwALxQMPgHm-eGIgCVAun/view?usp=drive_link" },
+
+{ hallTicket: "23", name: "S.Abdulla", marks: 78, password: "24POL0202017", sheet: "https://drive.google.com/file/d/1wp8BSafpf7pRYSRP4ORgbS9VbGURRs_X/view?usp=drive_link" },
+
+{ hallTicket: "21", name: "Golla Mahendra ", marks: 86, password: "24POL0202005", sheet: 
+"https://drive.google.com/file/d/12d4YqK0psQ6uJe3aJrO9MKm6_oA6ZPsS/view?usp=drive_link" },
+
+{ hallTicket: "19", name: "Thappeta Uday Kiran ", marks: 58, password: "24CSC6202018", sheet: "https://drive.google.com/file/d/1ZRyyWx_m1plnWr3vp9wVlApt-kL5hJ7o/view?usp=drive_link" },
+
+{ hallTicket: "06", name: "THURIMELLA BHANU CHARAN ", marks: 39, password: "24CMG2102018", sheet: "https://drive.google.com/file/d/1WuLO7rilL80q30kWPz937pqUJVOVPq4N/view?usp=drive_link" },
+
+{ hallTicket: "08", name: "Kandhanathi sameer ", marks: 72, password: "24HIS0202010", sheet: "https://drive.google.com/file/d/1XCGPRMOxP2w3VBh2qnP_a4CJZoqaS9tg/view?usp=drive_link" },
+
+{ hallTicket: "72", name: "S Chand Basha ", marks: 49, password: "24MAT6302019", sheet:
+ "https://drive.google.com/file/d/1NE8pmxyjIfieKpo_38TgdPSr3sciHn5C/view?usp=drive_link" },
+
+{ hallTicket: "87", name: "Nalabai Ankaiah ", marks: 66, password: "24POL0202012", sheet:
+ "https://drive.google.com/file/d/1D8Bdc59M1fPMO8-rtz9J1QIMEr0vkaMj/view?usp=drive_link" },
+
+{ hallTicket: "02", name: "S. Naga Charan Teja Naidu ", marks: 48, password: "24CMG2102016", sheet: "https://drive.google.com/file/d/12ZzfWYYB0o9Qq8EdXu6zPTP5loTH0ydS/view?usp=drive_link" },
+
+{ hallTicket: "25", name: "B.MAHAMMAD SAMI", marks: 54, password: "24CMG2102001", sheet: "https://drive.google.com/file/d/12fqa0KoZMpfNq5E6pgal6izS5HAlbe_z/view?usp=drive_link" },
+
+{ hallTicket: "27", name: "M. Karthik ", marks: 61, password: "24CMG2102011", sheet: 
+"https://drive.google.com/file/d/1oLApxAPaR-8VZOvQo-KWsliLnT73-dzg/view?usp=drive_link" },
+
+{ hallTicket: "61", name: "S.sohel", marks: 54, password: "24BOT4302013", sheet:
+ "https://drive.google.com/file/d/1uKWMm_WybIOpUMrgbppArklM2Oa1_I2P/view?usp=drive_link" },
+
+{ hallTicket: "59", name: "Korra Mutyalu Naik ", marks: 74, password: "24PHY6302015", sheet: "https://drive.google.com/file/d/1px0YV71JarUHGzrRzAs23wPgVHAaIH-y/view?usp=drive_link" },
+
+{ hallTicket: "44", name: "D.pavan kumar ", marks: 41, password: "24phy6302008", sheet: "https://drive.google.com/file/d/17MRBMZYtuRksujdM9yOtE6DbVB4VM8_j/view?usp=drive_link" },
+
+{ hallTicket: "42", name: "U.Sivamani", marks: 54, password: "24CSC6102022", sheet: 
+"https://drive.google.com/file/d/13GomtEk1Pi-JiMc9ovnLYGoVG32O5G5_/view?usp=drive_link" },
+
+{ hallTicket: "38", name: "A NIKHIL", marks: 48, password: "24CSC6102001", sheet:
+ "https://drive.google.com/file/d/1F33QXcEqRnT-VVAwcWT9LwtTmCKlAcmP/view?usp=drive_link" },
+
+{ hallTicket: "40", name: "Charan kumar", marks: 71, password: "24PHY6302019", sheet: 
+"https://drive.google.com/file/d/1PChsOyVNi46-UK4H2JNVATEQQN5IO-RE/view?usp=drive_link" },
+
+{ hallTicket: "93", name: "m amosh", marks: 35, password: "24CHE4402006", sheet:
+ "https://drive.google.com/file/d/1uwx-tGw8Or9YYKZTt1xTG7SOuMRpo6Ie/view?usp=drive_link" },
+
+{ hallTicket: "86", name: "A THIMOTHI ", marks: 41, password: "24B0T4302001", sheet:
+ "https://drive.google.com/file/d/1gwa9KiTkRogaYlyhUNRO1Kb-rNY0TYDn/view?usp=drive_link" },
+
+{ hallTicket: "65", name: "Boreddy Narasimha reddy ", marks: 56, password: "24OCH2102002", sheet: 
+"https://drive.google.com/file/d/14oupHenf9_UOM1N7-d7soA9Ofxfgq3Sb/view?usp=drive_link" },
+
+{ hallTicket: "31", name: "B.pavankumar", marks: 47, password: "24PHY6302005", sheet: "https://drive.google.com/file/d/1UdyXSM_KOhHvVMfkuI59QlYET0I82-6A/view?usp=drive_link" },
+
+{ hallTicket: "16", name: "BUJJIGI PRATHAP ", marks: 36, password: "24POL0202002", sheet: "https://drive.google.com/file/d/1XVfKoQACytlRY6tyqoO61KSN1-1qQT_F/view?usp=drive_link" },
+
+{ hallTicket: "10", name: "Bhukya sunilkumar ", marks: 62, password: "24MBG4302001", sheet: "https://drive.google.com/file/d/1xjWurG4PBEQ3BWdo2Grft11Yj_X0vJR3/view?usp=drive_link" },
+
+{ hallTicket: "32", name: "Bhukya Vivek ", marks: 41, password: "24CMG2102002", sheet: "https://drive.google.com/file/d/1XzunZ_lWX_Ci4HjVgBmIcPP89LZmgHV5/view?usp=drive_link" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23CS8055", name: "Neha", marks: 68, password: "zt45pq", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID2" },
+
+{ hallTicket: "23EC9022", name: "Kiran", marks: 82, password: "lk78mn", sheet: "https://drive.google.com/uc?id=YOUR_IMAGE_ID3" }
+  ];
+
+  let currentStudent = null;
+
+  function checkResult() {
+    const hallTicket = document.getElementById("hallTicket").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
+    const student = students.find(s => s.hallTicket === hallTicket && s.password === password);
+
+    if (student) {
+      currentStudent = student;
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("resultPage").style.display = "block";
+      document.getElementById("resultDetails").innerHTML = `
+        <b>Name:</b> ${student.name}<br>
+        <b>Hall Ticket:</b> ${student.hallTicket}<br>
+        <b>Marks:</b> ${student.marks}<br>
+        <b>Status:</b> ${student.marks >= 35 ? "✔ Passed" : "✘ Failed"}
+      `;
+    } else {
+      errorMsg.innerText = "❌ Invalid Hall Ticket or Password";
+    }
+  }
+
+  function goBack() {
+    document.getElementById("loginPage").style.display = "block";
+    document.getElementById("resultPage").style.display = "none";
+    currentStudent = null;
+  }
+
+  function downloadPDF() {
+    if (!currentStudent) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Background color
+    doc.setFillColor(230, 247, 255); // light blue
+    doc.rect(0, 0, 210, 297, "F");
+
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(13, 71, 161);
+    doc.setFont("times", "bold");
+    doc.text("Silver Jubilee Govt. College", 105, 20, { align: "center" });
+
+    doc.setFontSize(14);
+    doc.setTextColor(21, 101, 192);
+    doc.text("Men's Senior Hostel", 105, 30, { align: "center" });
+
+    doc.setFontSize(13);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Grand Test 1 - Result Card", 105, 40, { align: "center" });
+
+    // Border box
+    doc.setDrawColor(33, 150, 243);
+    doc.setLineWidth(1.2);
+    doc.roundedRect(15, 50, 180, 100, 5, 5);
+
+    doc.setFont("times", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Name: ${currentStudent.name}`, 30, 70);
+    doc.text(`Hall Ticket: ${currentStudent.hallTicket}`, 30, 80);
+    doc.text(`Marks: ${currentStudent.marks}`, 30, 90);
+
+    if (currentStudent.marks >= 35) {
+      doc.setTextColor(0, 128, 0);
+      doc.text("Status: ✔ Passed", 30, 100);
+    } else {
+      doc.setTextColor(200, 0, 0);
+      doc.text("Status: ✘ Failed", 30, 100);
+    }
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.text("Wishing You All The Best!", 105, 135, { align: "center" });
+
+    doc.setFontSize(11);
+    doc.text("G. JAYA SAI KESAVA (2023-2026)", 105, 150, { align: "center" });
+    doc.text("Library Secretary", 105, 158, { align: "center" });
+
+    doc.save("Result_Card.pdf");
+  }
+
+  function viewResponse() {
+    if (!currentStudent) return;
+    window.open(currentStudent.sheet, "_blank");
+  }
+</script>
+
+</body>
+</html>
